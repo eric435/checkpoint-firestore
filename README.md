@@ -1,7 +1,7 @@
-# @langchain/langgraph-checkpoint-mongodb
+# checkpoint-firestore
 
 Implementation of a [LangGraph.js](https://github.com/langchain-ai/langgraphjs) CheckpointSaver that uses Firestore.
-Based off of @langchain/langgraph-checkpoint-mongodb.
+Based off of [langgraph-checkpoint-mongodb](https://www.npmjs.com/package/@langchain/langgraph-checkpoint-mongodb).
 
 ## Usage
 
