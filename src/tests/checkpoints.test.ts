@@ -50,7 +50,6 @@ const checkpoint2: Checkpoint = {
   },
 };
 
-
 afterAll(async () => {
   const saver = new FirestoreSaver({ db });
 

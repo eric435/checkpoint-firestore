@@ -1,29 +1,18 @@
 # @langchain/langgraph-checkpoint-mongodb
 
-Implementation of a [LangGraph.js](https://github.com/langchain-ai/langgraphjs) CheckpointSaver that uses a MongoDB instance.
+Implementation of a [LangGraph.js](https://github.com/langchain-ai/langgraphjs) CheckpointSaver that uses Firestore.
+Based off of @langchain/langgraph-checkpoint-mongodb.
 
 ## Usage
 
 ```ts
-import { MongoClient } from "mongodb";
-import { MongoDBSaver } from "@langchain/langgraph-checkpoint-mongodb";
+import { initializeApp, cert } from "firebase-admin/app";
+import { getFirestore } from "firebase-admin/firestore";
+import { FirestoreSaver } from "../index.js";
 
-const writeConfig = {
-  configurable: {
-    thread_id: "1",
-    checkpoint_ns: ""
-  }
-};
-const readConfig = {
-  configurable: {
-    thread_id: "1"
-  }
-};
-
-
-const client = new MongoClient(process.env.MONGODB_URL);
-
-const checkpointer = new MongoDBSaver({ client });
+initializeApp({ credential: cert("PATH TO CERT FILE") });
+const db = getFirestore();
+const saver = new FirestoreSaver({ db });
 const checkpoint = {
   v: 1,
   ts: "2024-07-31T20:14:19.804150+00:00",
@@ -51,15 +40,31 @@ const checkpoint = {
 }
 
 // store checkpoint
-await checkpointer.put(writeConfig, checkpoint, {}, {});
+await saver.putWrites(
+  {
+    configurable: {
+      thread_id: "1",
+      checkpoint_ns: "",
+      checkpoint_id: checkpoint.id,
+    },
+  },
+  [["Write 1", "Write 2"]],
+  "task1"
+);
 
 // load checkpoint
-await checkpointer.get(readConfig);
+await saver.getTuple({
+  configurable: { 
+    thread_id: "1", 
+    checkpoint_ns: "",
+    checkpoint_id: checkpoint.id,
+  }
+});
 
 // list checkpoints
-for await (const checkpoint of checkpointer.list(readConfig)) {
-  console.log(checkpoint);
-}
+await saver.list({
+  configurable: { thread_id: "1" },
+});
 
 await client.close();
 ```
